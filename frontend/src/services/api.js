@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: "http://127.0.0.1:8000/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 export const checkTransaction = async (transaction) => {
-  const response = await api.post("/api/checker", transaction);
+  const response = await api.post("/transactions/", transaction);
   return response.data;
 };
 

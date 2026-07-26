@@ -3,8 +3,10 @@ import joblib
 
 BASE_DIR = Path(__file__).resolve().parent
 
-MODEL_PATH = BASE_DIR / "fraud_model.pkl"
-ENCODER_PATH = BASE_DIR / "label_encoder.pkl"
+PIPELINE_PATH = BASE_DIR / "fraud_pipeline.pkl"
+THRESHOLD_PATH = BASE_DIR / "threshold.pkl"
 
-model = joblib.load(MODEL_PATH)
-encoder = joblib.load(ENCODER_PATH)
+pipeline = joblib.load(PIPELINE_PATH)
+threshold = joblib.load(THRESHOLD_PATH)
+
+print("✅ Fraud pipeline loaded successfully")

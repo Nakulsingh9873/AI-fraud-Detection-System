@@ -3,33 +3,29 @@ import { checkTransaction } from "../services/api";
 
 function TransactionChecker() {
   const [formData, setFormData] = useState({
-    step: 1,
-    type: "TRANSFER",
-    amount: "",
-    oldbalanceOrg: "",
-    newbalanceOrig: "",
-    oldbalanceDest: "",
-    newbalanceDest: "",
-    isFlaggedFraud: 0,
+    transaction_amount: "",
+    payment_channel: "UPI",
+    device_type: "Mobile",
+    is_international: 0,
+    account_age_days: "",
+    failed_txn_count_24h: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]:
-        type === "checkbox"
-          ? checked
-            ? 1
-            : 0
-          : name === "type"
-          ? value
-          : Number(value),
-    });
+        name === "transaction_amount" ||
+        name === "is_international" ||
+        name === "failed_txn_count_24h"
+          ? (value === "" ? "" : Number(value))
+          : value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -41,172 +37,220 @@ function TransactionChecker() {
       const response = await checkTransaction(formData);
 
       setResult(response);
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       alert("Failed to analyze transaction.");
     } finally {
       setLoading(false);
     }
   };
 
+  const meterColor =
+    result?.fraud_probability <= 30
+      ? "bg-green-500"
+      : result?.fraud_probability <= 70
+      ? "bg-yellow-500"
+      : "bg-red-500";
+
+  const predictionColor =
+    result?.prediction === "Fraud"
+      ? "text-red-600"
+      : "text-green-600";
+
   return (
-     <div className="max-w-7xl mx-auto px-6 mt-10">
+    <div className="max-w-6xl mx-auto px-6 py-12">
 
-      <div className="mb-10">
+      <div className="mb-12 text-center">
 
-    <h1 className="text-5xl font-black text-white">
-       Transaction Intelligence
-    </h1>
+        <h1 className="text-5xl font-black text-slate-900">
+          🛡️ AI Transaction Checker
+        </h1>
 
-      <p className="text-gray-400 mt-3 text-lg">
-        Analyze transactions using XGBoost and AI-powered explanations.
-      </p>
+        <p className="text-slate-500 text-lg mt-4">
+          Submit your transaction details and let Kavach AI
+          detect suspicious activity in real time.
+        </p>
 
-    </div>
+      </div>
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-900/70 backdrop-blur-xl border border-slate-700 rounded-3xl p-10 shadow-2xl"
+        className="bg-white rounded-3xl shadow-xl border border-slate-200 p-10 grid md:grid-cols-2 gap-6"
       >
-
-        <select
-          name="type"
-          value={formData.type}
+              {/* Transaction Amount */}
+        <input
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          type="number"
+          placeholder="💰 Transaction Amount (₹)"
+          name="transaction_amount"
+          value={formData.transaction_amount}
           onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
+          required
+        />
+
+        {/* Payment Method */}
+        <select
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          name="payment_channel"
+          value={formData.payment_channel}
+          onChange={handleChange}
         >
-          <option>TRANSFER</option>
-          <option>CASH_OUT</option>
-          <option>PAYMENT</option>
-          <option>DEBIT</option>
-          <option>CASH_IN</option>
+        
+          <option value="UPI">UPI</option>
+          <option value="Credit Card">Credit Card</option>
+          <option value="Debit Card">Debit Card</option>
+          <option value="Wallet">Wallet</option>
+          <option value="Net Banking">Net Banking</option>
         </select>
 
-        <input
-          name="amount"
-          type="number"
-          placeholder="Amount"
+        {/* Device Type */}
+        <select
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          name="device_type"
+          value={formData.device_type}
           onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
-        />
+        >
+          <option value="Mobile">Mobile</option>
+          <option value="Laptop">Laptop</option>
+          <option value="Desktop">Desktop</option>
+          <option value="Tablet">Tablet</option>
+        </select>
 
-        <input
-          name="oldbalanceOrg"
-          type="number"
-          placeholder="Old Balance Origin"
+        {/* International */}
+        <select
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          name="is_international"
+          value={formData.is_international}
           onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
-        />
+        >
+          <option value={0}>🌍 Domestic</option>
+          <option value={1}>🌎 International</option>
+        </select>
 
-        <input
-          name="newbalanceOrig"
-          type="number"
-          placeholder="New Balance Origin"
+        {/* Account Age */}
+        <select
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          name="account_age_days"
+          value={formData.account_age_days}
           onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
-        />
+        >
+          <option value="" disabled>
+          Account Age
+          </option>
+          <option value="Less than 30 Days">Less than 30 Days</option>
+          <option value="1-6 Months">1–6 Months</option>
+          <option value="6-12 Months">6–12 Months</option>
+          <option value="1-2 Years">1–2 Years</option>
+          <option value="2-5 Years">2–5 Years</option>
+          <option value="More than 5 Years">More than 5 Years</option>
+        </select>
 
+        {/* Failed Transactions */}
         <input
-          name="oldbalanceDest"
+          className="border rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-teal-500"
           type="number"
-          placeholder="Old Balance Destination"
+          placeholder="Failed Transactions (Last 24 Hours)"
+          min="0"
+          placeholder="No. of Failed Transactions"
+          name="failed_txn_count_24h"
+          value={formData.failed_txn_count_24h}
           onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
+          required
         />
-
-        <input
-          name="newbalanceDest"
-          type="number"
-          placeholder="New Balance Destination"
-          onChange={handleChange}
-          className="p-4 rounded-xl bg-slate-800 border border-slate-700 focus:border-emerald-400 outline-none transition"
-        />
-
-        <label className="flex items-center gap-3 text-gray-300">
-          <input
-            type="checkbox"
-            name="isFlaggedFraud"
-            onChange={handleChange}
-          />
-          Flagged Fraud
-        </label>
 
         <button
-        type="submit"
-        disabled={loading}
-        className="bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 rounded-xl py-4 font-bold text-lg shadow-lg hover:scale-105 transition-all duration-300"
+          type="submit"
+          disabled={loading}
+          className="md:col-span-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl py-4 text-lg font-bold transition duration-300"
         >
-          {loading ? "Analyzing..." : "Analyze Transaction"}
+          {loading ? "Analyzing Transaction..." : "🚀 Analyze Transaction"}
         </button>
 
       </form>
+            {result && (
+        <div className="mt-10 bg-white rounded-3xl shadow-xl border border-slate-200 p-10">
 
-      {result && (
-        <div className="mt-10 bg-slate-900/70 backdrop-blur-xl border border-slate-700 rounded-3xl p-10 shadow-2xl">
-
-          <h2 className="text-3xl font-bold text-emerald-400 mb-6">
-            Prediction Result
+          <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">
+            🛡️ AI Analysis Result
           </h2>
 
-          <div className="space-y-3 text-lg">
+          {/* Prediction */}
+          <div className="mb-8 text-center">
 
-            <div className="bg-slate-800 rounded-2xl p-6 mb-6">
-
-              <p className="text-gray-400 text-sm">
+            <p className="text-slate-500 text-lg">
               Prediction
-              </p>
-
-              <h2 className="text-4xl font-black text-emerald-400 mt-2">
-              {result.analysis.prediction}
-              </h2>
-
-            </div>
-
-            <p>
-              <strong>Risk Level:</strong>{" "}
-              {result.analysis.risk_level}
             </p>
 
-            <p>
-              <strong>Confidence:</strong>{" "}
-              {result.analysis.confidence}%
-            </p>
-
-            <p>
-              <strong>Fraud Probability:</strong>{" "}
-              {result.analysis.fraud_probability}%
-            </p>
+            <h2 className={`text-5xl font-black mt-3 ${predictionColor}`}>
+              {result.prediction}
+            </h2>
 
           </div>
 
-          <div className="mt-3 leading-8 text-gray-300">
+          {/* Fraud Meter */}
 
-            <h3 className="text-2xl font-semibold text-cyan-400">
-              AI Summary
-            </h3>
+          <div className="mb-8">
 
-            <p className="mt-3">
-              {result.ai.summary}
-            </p>
+            <div className="flex justify-between mb-2">
 
-            <h3 className="text-2xl font-semibold text-cyan-400 mt-6">
-              Reasons
-            </h3>
+              <span className="font-semibold text-slate-700">
+                Fraud Risk
+              </span>
 
-            <ul className="list-disc ml-6 mt-3">
-             {Array.isArray(result.ai?.reasons) &&
-             result.ai.reasons.map((reason, index) => (
-            <li key={index}>{reason}</li>
-         ))}
-            </ul>
+              <span className="font-bold text-slate-900">
+                {result.fraud_probability}%
+              </span>
 
-            <h3 className="text-2xl font-semibold text-cyan-400 mt-6">
-              Recommendation
-            </h3>
+            </div>
 
-            <p className="mt-3">
-              {result.ai.recommendation}
-            </p>
+            <div className="w-full bg-slate-200 rounded-full h-6 overflow-hidden">
+
+              <div
+                className={`${meterColor} h-6 rounded-full transition-all duration-700`}
+                style={{
+                  width: `${result.fraud_probability}%`,
+                }}
+              />
+
+            </div>
+
+          </div>
+
+          {/* Result Cards */}
+
+          <div className="grid md:grid-cols-2 gap-6">
+
+            <div className="bg-slate-100 rounded-2xl p-6">
+
+              <p className="text-slate-500">
+                Risk Level
+              </p>
+
+              <h3
+                className={`text-4xl font-black mt-2 ${
+                  result.risk_level === "High"
+                    ? "text-red-600"
+                    : result.risk_level === "Medium"
+                    ? "text-yellow-500"
+                    : "text-green-600"
+                }`}
+              >
+                {result.risk_level}
+              </h3>
+
+            </div>
+
+            <div className="bg-slate-100 rounded-2xl p-6">
+
+              <p className="text-slate-500">
+                Confidence
+              </p>
+
+              <h3 className="text-4xl font-black text-teal-600 mt-2">
+                {result.confidence}%
+              </h3>
+
+            </div>
 
           </div>
 

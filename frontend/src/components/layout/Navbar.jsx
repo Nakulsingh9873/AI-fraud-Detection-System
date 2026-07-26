@@ -65,9 +65,7 @@ const Navbar = () => {
 
           {/* Desktop Button */}
           <div className="hidden lg:block">
-            <button className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg hover:shadow-xl">
-              Try Prediction
-            </button>
+            
           </div>
 
           {/* Mobile Menu Button */}

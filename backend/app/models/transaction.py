@@ -5,37 +5,37 @@ from uuid import uuid4
 class Transaction:
 
     @staticmethod
-    def create(data: dict):
+    def create(transaction_data: dict, prediction: dict):
 
         return {
 
             "transaction_id": str(uuid4()),
 
-            "customer_id": data["customer_id"],
+            # ==========================
+            # Transaction Details
+            # ==========================
+            "transaction_amount": transaction_data["transaction_amount"],
+            "payment_channel": transaction_data["payment_channel"],
+            "device_type": transaction_data["device_type"],
+            "is_international": transaction_data["is_international"],
 
-            "merchant_id": data["merchant_id"],
+            # User Inputs
+            "account_age_days": transaction_data["account_age_days"],
+            "failed_txn_count_24h": transaction_data["failed_txn_count_24h"],
 
-            "amount": data["amount"],
+            # ==========================
+            # AI Prediction
+            # ==========================
+            "prediction": prediction["prediction"],
+            "risk_level": prediction["risk_level"],
+            "risk_score": prediction["risk_score"],          # NEW
+            "fraud_probability": prediction["fraud_probability"],
+            "confidence": prediction["confidence"],
+            "reasons": prediction["reasons"],                # NEW
 
-            "currency": data["currency"],
-
-            "payment_method": data["payment_method"],
-
-            "transaction_type": data["transaction_type"],
-
-            "merchant_category": data["merchant_category"],
-
-            "location": data["location"],
-
-            "device": data["device"],
-
-            "prediction": "Pending",
-
-            "risk_score": 0,
-
-            "confidence": 0,
-
-            "status": "Pending",
-
+            # ==========================
+            # Timestamp
+            # ==========================
             "created_at": datetime.now(tz=UTC)
+
         }

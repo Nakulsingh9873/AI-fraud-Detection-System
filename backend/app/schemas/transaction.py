@@ -1,28 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Literal
-from datetime import datetime
 
 
-class Location(BaseModel):
-    city: str
-    country: str
+class TransactionRequest(BaseModel):
 
+    transaction_amount: float = Field(gt=0)
 
-class Device(BaseModel):
-    device_id: str
-    device_type: Literal["Mobile", "Laptop", "Desktop", "Tablet"]
-    is_new_device: bool
-
-
-class TransactionCreate(BaseModel):
-    customer_id: str
-    merchant_id: str
-
-    amount: float = Field(gt=0)
-
-    currency: str = "INR"
-
-    payment_method: Literal[
+    payment_channel: Literal[
         "UPI",
         "Credit Card",
         "Debit Card",
@@ -30,32 +14,37 @@ class TransactionCreate(BaseModel):
         "Wallet"
     ]
 
-    transaction_type: Literal[
-        "Online",
-        "POS",
-        "ATM"
+    device_type: Literal[
+        "Mobile",
+        "Desktop",
+        "Laptop",
+        "Tablet"
     ]
 
-    merchant_category: str
+    is_international: int = Field(ge=0, le=1)
 
-    location: Location
+    account_age_days: Literal[
+    "Less than 30 Days",
+    "1-6 Months",
+    "6-12 Months",
+    "1-2 Years",
+    "2-5 Years",
+    "More than 5 Years"
+]
 
-    device: Device
+    failed_txn_count_24h: int = Field(ge=0)
 
 
 class TransactionResponse(BaseModel):
-    transaction_id: str
-
-    customer_id: str
-
-    amount: float
 
     prediction: str
 
-    risk_score: float
+    risk_level: str
+
+    risk_score: int
+
+    fraud_probability: float
 
     confidence: float
 
-    status: str
-
-    created_at: datetime
+    reasons: list[str]

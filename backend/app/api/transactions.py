@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from app.schemas.transaction import (
-    TransactionCreate,
+    TransactionRequest,
     TransactionResponse,
 )
 
@@ -18,11 +18,8 @@ router = APIRouter(
     response_model=TransactionResponse
 )
 def create_transaction(
-    transaction: TransactionCreate
+    transaction: TransactionRequest
 ):
-
-    created_transaction = TransactionService.create_transaction(
+    return TransactionService.create_transaction(
         transaction.model_dump()
     )
-
-    return created_transaction
