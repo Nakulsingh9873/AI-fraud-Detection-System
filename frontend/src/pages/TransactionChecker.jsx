@@ -253,8 +253,33 @@ function TransactionChecker() {
             </div>
 
           </div>
+         {/* Explanation */}
+         {result.reasons && result.reasons.length > 0 && (
+          <div className="mt-8 bg-slate-50 border border-slate-200 rounded-2xl p-6">
 
-        </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-5">
+             🔍 Why did Kavach AI make this prediction?
+            </h3>
+
+          <div className="space-y-3">
+             {result.reasons.map((reason, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-sm"
+            >
+            <span className="text-green-600 text-xl">✔</span>
+
+            <span className="text-slate-700 text-lg">
+              {reason}
+            </span>
+          </div>
+      ))}
+    </div>
+
+  </div>
+)}
+
+    </div>
       )}
 
     </div>
